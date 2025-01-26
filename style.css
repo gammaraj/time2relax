@@ -1,0 +1,74 @@
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  background-color: #f0f0f0;
+  display: flex; /* Center the card vertically */
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Make the body fill the viewport height */
+}
+
+/* Card Styling */
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 30px; 
+  max-width: 500px; 
+}
+
+/* Card Header */
+.card-header {
+  text-align: center;
+}
+
+/* Timer */
+#timer {
+  font-size: 4rem; 
+}
+
+/* Status */
+#status {
+  margin-top: 10px; 
+}
+
+/* Settings */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  grid-gap: 20px;
+}
+
+.setting {
+  margin-bottom: 15px;
+}
+
+/* Input Styles */
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+/* Button Styles */
+.btn {
+  background-color: #3498db;
+  color: #fff;
+  padding: 12px 20px; 
+  border: none;
+  border-radius: 5px; 
+  cursor: pointer;
+}
+
+/* Colors */
+.text-primary {
+  color: #3498db;
+}

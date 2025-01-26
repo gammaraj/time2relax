@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Break Reminder</title>
+  <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+  <div class="container mx-auto max-w-md p-4"> 
+    <div class="card"> 
+      <div class="card-header text-center">
+        <h1 class="text-3xl font-bold">Break Reminder</h1>
+        <div id="timer" class="text-6xl font-bold text-primary mt-4">5:00</div>
+        <div id="status" class="text-gray-600 mt-2">Waiting for activity...</div>
+      </div>
+
+      <div class="card-body">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Settings</h3>
+        <div class="settings-grid">
+          <div class="setting">
+            <label for="workDuration" class="block text-sm font-medium text-gray-700">Work Duration (minutes):</label>
+            <input type="number" id="workDuration" min="1" class="input"> 
+          </div>
+          <div class="setting">
+            <label for="inactivityThreshold" class="block text-sm font-medium text-gray-700">Inactivity Threshold (minutes):</label>
+            <input type="number" id="inactivityThreshold" min="1" class="input"> 
+          </div>
+          <div class="setting">
+            <label for="resetThreshold" class="block text-sm font-medium text-gray-700">Reset Threshold (minutes):</label>
+            <input type="number" id="resetThreshold" min="1" class="input"> 
+          </div>
+        </div>
+        <button onclick="saveSettings()" class="btn">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
