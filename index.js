@@ -14,10 +14,11 @@ let timerPausedTime = null;
 let isTimerRunning = false;
 
 const settingsPath = join(app.getPath('userData'), 'settings.json'); 
+console.log(settingsPath);
 
 // Default settings (in milliseconds)
 const defaultSettings = {
-  workDuration: 5 * 60 * 1000, // 45 minutes
+  workDuration: 5 * 60 * 1000, // 5 minutes
   inactivityThreshold: 60 * 1000, // 1 minute
   resetThreshold: 10 * 60 * 1000, // 10 minutes
   checkInterval: 1000, // Check activity every second
@@ -61,6 +62,11 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
   startActivityMonitoring();
+
+    // Send initial workDuration to renderer
+    mainWindow.webContents.on('did-finish-load', () => {
+      mainWindow.webContents.send('initial-work-duration', settings.workDuration);
+    });
 }
 function startActivityMonitoring() {
   // Add event listeners for different types of system activity

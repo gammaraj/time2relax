@@ -4,6 +4,10 @@ const workDurationInput = document.getElementById('workDuration');
 const inactivityThresholdInput = document.getElementById('inactivityThreshold');
 const resetThresholdInput = document.getElementById('resetThreshold');
 
+ipcRenderer.on('initial-work-duration', (event, workDuration) => {
+    updateTimerDisplay(workDuration);
+  });
+  
 ipcRenderer.on('settings-loaded', (event, loadedSettings) => {
   if (loadedSettings) {
     workDurationInput.value = loadedSettings.workDuration / (60 * 1000); 
@@ -15,6 +19,7 @@ ipcRenderer.on('settings-loaded', (event, loadedSettings) => {
 ipcRenderer.send('request-settings'); 
 
 let timerDisplay = document.getElementById('timer');
+//  updateTimerDisplay(10);
 let statusDisplay = document.getElementById('status');
 
 function formatTime(ms) {
@@ -71,7 +76,7 @@ ipcRenderer.on('timer-update', (event, data) => {
 
 ipcRenderer.on('break-time', () => {
     new Notification('Break Time!', {
-        body: 'Time to take a break from your computer!'
+        body: 'Break time! - Take a short walk or stretch',
     });
 });
 

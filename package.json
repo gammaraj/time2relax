@@ -12,7 +12,7 @@
     "make": "electron-forge make"
   },
   "keywords": [],
-  "author": "Your Name/Team Name",
+  "author": "RG",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
@@ -30,5 +30,5 @@
     "@electron/fuses": "^1.8.0",
     "electron": "^25.9.8"
   },
-  "description": "A brief description of your Electron app"
+  "description": "Break Reminder"
 }
