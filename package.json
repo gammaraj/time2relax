@@ -30,5 +30,16 @@
     "@electron/fuses": "^1.8.0",
     "electron": "^25.9.8"
   },
-  "description": "Break Reminder"
+  "description": "Break Reminder",
+  "build": {
+    "productName": "Time2Relax",
+    "appId": "your.app.id",
+    "files": [
+      "dist/**/*",
+      "assets/**/*"
+    ],
+    "win": {},
+    "mac": {},
+    "linux": {}
+  }
 }
