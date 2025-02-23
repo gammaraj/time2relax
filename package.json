@@ -36,10 +36,14 @@
     "appId": "your.app.id",
     "files": [
       "dist/**/*",
-      "assets/**/*"
+      "assets/**/*",
+      "icons/**/*"  
     ],
-    "win": {},
-    "mac": {},
-    "linux": {}
+    "mac": {
+      "icon": "./icons/mac/icon.icns"
+    },
+    "win": {
+      "icon": "./icons/win/icon.ico"
+    }
   }
 }

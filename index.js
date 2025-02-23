@@ -99,6 +99,7 @@ function startActivityMonitoring() {
       mainWindow.webContents.send("timer-update", { remainingTime });
       updateDockBadge(remainingTime); // Update dock/taskbar badge
       updateTrayTooltip(remainingTime); // Update tray tooltip
+      updateTrayTitle(remainingTime); // Update tray title
     }
   }, 1000); // Check every second
 
@@ -234,6 +235,16 @@ function updateTrayTooltip(remainingTime) {
     .toString()
     .padStart(2, "0")}`;
   tray.setToolTip(tooltipText);
+}
+
+// Function to update the tray title with remaining time
+function updateTrayTitle(remainingTime) {
+  const minutes = Math.floor(remainingTime / 60000);
+  const seconds = Math.floor((remainingTime % 60000) / 1000);
+  const titleText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  if (tray) {
+    tray.setTitle(titleText); // This will display the time next to the tray icon on macOS
+  }
 }
 
 // IPC handlers for settings updates
