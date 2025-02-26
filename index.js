@@ -265,3 +265,6 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
+
+// electron-icon-maker --input=./assets/1024.png --output=./assets
