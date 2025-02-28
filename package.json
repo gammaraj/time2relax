@@ -34,7 +34,7 @@
   "description": "Break Reminder",
   "build": {
     "productName": "Time2Relax",
-    "appId": "your.app.id",
+    "appId": "gtg.Time2Relax.now",
     "files": [
       "dist/**/*",
       "assets/**/*",

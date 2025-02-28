@@ -14,6 +14,7 @@ let timerStartTime = null;
 let timerPausedTime = null;
 let isTimerRunning = false;
 let tray = null;
+let timerCompletedOnce = false; // Flag to track if the timer has completed at least once
 
 const settingsPath = join(app.getPath("userData"), "settings.json");
 console.log(settingsPath);
@@ -27,11 +28,12 @@ const defaultSettings = {
 };
 
 let settings = loadSettings();
+console.log(settings);
 
 function loadSettings() {
   try {
     const data = readFileSync(settingsPath, "utf-8");
-    console.log(data);
+    //console.log(data);
     return JSON.parse(data);
   } catch (error) {
     console.warn("No settings file found. Using default settings.");
@@ -83,17 +85,39 @@ function startActivityMonitoring() {
 
   // Use setInterval with a more comprehensive check
   activityTimer = setInterval(() => {
-    const idleTime = powerMonitor.getSystemIdleTime();
+    const idleTime = powerMonitor.getSystemIdleTime(); // convert to milliseconds
     const currentTime = Date.now();
 
-    if (idleTime > settings.inactivityThreshold) {
-      handleInactivity(currentTime);
+    console.log(
+      `Idle Time: ${idleTime} seconds, Inactivity Threshold: ${
+        settings.inactivityThreshold / 1000
+      } seconds`
+    );
+
+    if (idleTime > settings.inactivityThreshold / 1000) {
+      handleInactivity(currentTime, idleTime);
     } else {
-      handleActivity(currentTime);
+      if (!timerCompletedOnce) {
+        console.log("handle activity - first time");
+        handleActivity(currentTime);
+      } else {
+        console.log("handle activity - second time or later ");
+        console.log("Waiting for reset threshold");
+        console.log(settings.resetThreshold);
+        setTimeout(() => {
+          handleActivity(currentTime);
+        }, settings.resetThreshold);
+        /*
+        const timeSinceLastCompletion = currentTime - timerPausedTime;
+        if (timeSinceLastCompletion >= settings.resetThreshold) {
+          handleActivity(currentTime);
+        }*/
+      }
     }
 
     // Send remaining time to renderer process
-    if (isTimerRunning) {
+    if (isTimerRunning && mainWindow) {
+      // Check if mainWindow exists
       const remainingTime =
         settings.workDuration - (Date.now() - timerStartTime);
       mainWindow.webContents.send("timer-update", { remainingTime });
@@ -104,33 +128,37 @@ function startActivityMonitoring() {
   }, 1000); // Check every second
 
   // Check if 'timer.png' exists before creating the tray icon
-  //const trayIconPath = "./assets/timer-dark.png";
-  //const trayIconPath = "./assets/timer-light.png";
-  const trayIconPath = !app.isPackaged 
-  ? path.join(__dirname, './assets/timer-light.png')
-  : path.join(process.resourcesPath, 'assets/timer-light.png');
+  const trayIconPath = !app.isPackaged
+    ? path.join(__dirname, "./assets/timer-light.png")
+    : path.join(process.resourcesPath, "assets/timer-light.png");
 
-  try {
-    fs.accessSync(trayIconPath, fs.constants.F_OK); // Check if the file exists
-    console.log("File exists!");
-    tray = new Tray(trayIconPath);
-    tray.setToolTip("Timer App");
-  } catch (err) {
-    console.log("File does not exist:", err);
-  }
+  fs.access(trayIconPath, fs.constants.F_OK, (err) => {
+    // Use async fs.access
+    if (err) {
+      console.log("File does not exist:", err);
+    } else {
+      //console.log("File exists!");
+      tray = new Tray(trayIconPath);
+      tray.setToolTip("Timer App");
+    }
+  });
 }
 
 function handleActivity(currentTime) {
-  console.log("User is active");
-
+  //console.log("User is active");
+  console.log("handling activity - current time");
+  console.log(currentTime);
+  
   if (!isTimerRunning && !timerPausedTime && !timerStartTime) {
+  //if (!isTimerRunning && timerPausedTime !== null && timerStartTime !== null) {
     // Only start new timer if no timer exists
+    console.log(isTimerRunning, timerPausedTime, timerStartTime);
     startTimer();
   } else if (timerPausedTime) {
     const pauseDuration = currentTime - timerPausedTime;
     if (pauseDuration >= settings.resetThreshold) {
       resetTimer();
-      startTimer();
+      //startTimer();
     } else {
       resumeTimer();
     }
@@ -141,7 +169,7 @@ function handleActivity(currentTime) {
 function handleInactivity(currentTime, idleTime) {
   console.log("User is inactive");
 
-  if (isTimerRunning && idleTime >= settings.inactivityThreshold) {
+  if (isTimerRunning && idleTime >= settings.inactivityThreshold / 1000) {
     pauseTimer();
   }
 }
@@ -199,19 +227,27 @@ function resumeTimer() {
 }
 
 function resetTimer() {
-  clearTimeout(breakTimer);
+  console.log("Resetting timer due to inactivity or manual reset");
+  isTimerRunning = false;
   timerStartTime = null;
   timerPausedTime = null;
-  isTimerRunning = false;
+  clearTimeout(breakTimer);
 
   mainWindow.webContents.send("timer-update", {
     status: "reset",
     remainingTime: settings.workDuration,
   });
+
+  // Wait for resetThreshold duration before starting a new timer
+  setTimeout(() => {
+    startTimer();
+  }, settings.resetThreshold);
 }
 
 function notifyBreakTime() {
+  console.log("Break time triggered");
   mainWindow.webContents.send("break-time");
+  timerCompletedOnce = true; // Set flag to true after the first completion
   resetTimer();
 }
 
@@ -241,7 +277,7 @@ function updateTrayTooltip(remainingTime) {
 function updateTrayTitle(remainingTime) {
   const minutes = Math.floor(remainingTime / 60000);
   const seconds = Math.floor((remainingTime % 60000) / 1000);
-  const titleText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const titleText = `${minutes}:${seconds.toString().padStart(2, "0")}`;
   if (tray) {
     tray.setTitle(titleText); // This will display the time next to the tray icon on macOS
   }
@@ -265,6 +301,5 @@ app.on("activate", () => {
     createWindow();
   }
 });
-
 
 // electron-icon-maker --input=./assets/1024.png --output=./assets
