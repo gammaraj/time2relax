@@ -1,0 +1,166 @@
+:root {
+  --primary: oklch(65% 0.15 240);
+  --primary-dark: oklch(55% 0.15 240);
+  --secondary: oklch(75% 0.1 270);
+  --bg: oklch(98% 0.01 250);
+  --text: oklch(25% 0.02 250);
+  --card: #ffffff;
+  --accent: oklch(60% 0.12 300);
+  --success: oklch(70% 0.15 140);
+  --error: oklch(65% 0.18 20);
+  --title: oklch(15% 0.03 250); /* Darker, more prominent title color */
+  --message-bg: oklch(95% 0.02 250); /* Light background for messages */
+  --message-text: oklch(20% 0.03 250); /* Darker text for messages */
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  padding: 2.5rem;
+  position: relative;
+  text-align: center;
+}
+
+.card-header h2 { /* Targeting the title inside the header */
+  color: var(--title);
+  font-size: 2rem; /* Adjusted font size */
+  margin-bottom: 0.5rem; /* Added margin */
+  font-weight: 600; /* Added font weight */
+}
+
+.timer-display {
+  background: rgba(255, 255, 255, 0.4);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  backdrop-filter: blur(8px);
+  margin: 2rem auto 1.5rem;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+.input {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid oklch(90% 0.01 250);
+  border-radius: 0.5rem;
+  margin-top: 0.75rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 1rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px oklch(90% 0.04 240);
+}
+
+.btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  width: 100%;
+  margin-top: 2rem;
+  font-size: 1rem;
+}
+
+.btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.settings-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 1rem;
+  background: var(--message-bg); /* Use message background */
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+
+.settings-toggle:hover {
+  background: oklch(95% 0.02 250);
+}
+
+.settings-toggle span { /* Style the text inside the toggle */
+  color: var(--message-text);
+}
+
+.settings-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.settings-content.expanded {
+  max-height: 1500px; /* Increased max-height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-top: 1rem;
+  padding: 1rem; /* Add padding for better spacing */
+}
+
+.chevron {
+  transition: transform 0.3s ease-in-out;
+}
+
+.chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.message { /* Style for messages */
+  background: var(--message-bg);
+  color: var(--message-text);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  font-size: 1rem;
+}
+
+@media (min-width: 640px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

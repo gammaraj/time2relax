@@ -145,7 +145,7 @@ function startActivityMonitoring() {
 }
 
 function handleActivity(currentTime) {
-  //console.log("User is active");
+  console.log("User is active");
   //console.log("handling activity - current time");
   //console.log(currentTime);
   

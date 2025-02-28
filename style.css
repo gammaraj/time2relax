@@ -1,74 +1,129 @@
-/* Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: sans-serif;
+:root {
+  --primary: oklch(65% 0.15 240); /* Modern blue-purple */
+  --primary-dark: oklch(55% 0.15 240);
+  --secondary: oklch(75% 0.1 270); /* Soft purple */
+  --bg: oklch(98% 0.01 250); /* Very light gray */
+  --text: oklch(20% 0.02 250); /* Darker gray */
+  --card: #ffffff;
+  --accent: oklch(60% 0.12 300); /* Purple accent */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* Shadow color */
+  --border-radius: 1rem; /* Consistent border radius */
+  --transition-duration: 0.3s; /* Consistent transition duration */
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
 }
 
 body {
-  background-color: #f0f0f0;
-  display: flex; /* Center the card vertically */
-  justify-content: center;
+  background: var(--bg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  height: 75vh;
+  display: flex;
   align-items: center;
-  min-height: 100vh; /* Make the body fill the viewport height */
+  justify-content: center;
+  color: var(--text);
 }
 
-/* Card Styling */
 .card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 30px; 
-  max-width: 500px; 
+  background: var(--card);
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-/* Card Header */
 .card-header {
-  text-align: center;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  padding: 2rem;
+  position: relative;
 }
 
-/* Timer */
-#timer {
-  font-size: 4rem; 
+.timer-display {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(5px);
+  margin: 1.5rem 0 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/* Status */
-#status {
-  margin-top: 10px; 
+.card-body {
+  padding: 1.5rem;
 }
 
-/* Settings */
-.settings-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; 
-  grid-gap: 20px;
-}
-
-.setting {
-  margin-bottom: 15px;
-}
-
-/* Input Styles */
 .input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-top: 5px;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  transition: border-color 0.2s;
 }
 
-/* Button Styles */
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px oklch(90.94% 0.046 258.06);
+}
+
 .btn {
-  background-color: #3498db;
-  color: #fff;
-  padding: 12px 20px; 
+  background: var(--primary);
+  color: white;
   border: none;
-  border-radius: 5px; 
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  margin-top: 1.5rem;
 }
 
-/* Colors */
-.text-primary {
-  color: #3498db;
+.btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.settings-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 0.75rem;
+  background: oklch(97.94% 0.016 258.06);
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+
+.settings-toggle:hover {
+  background: oklch(95.94% 0.026 258.06);
+}
+
+.settings-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-out;
+}
+
+.settings-content.expanded {
+  max-height: 500px;
+}
+
+.chevron {
+  transition: transform 0.3s ease;
+}
+
+.chevron.rotated {
+  transform: rotate(180deg);
+}
+
+@media (min-width: 640px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
