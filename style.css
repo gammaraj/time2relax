@@ -1,6 +1,6 @@
 :root {
-  --primary: oklch(65% 0.15 240); /* Modern blue-purple */
-  --primary-dark: oklch(55% 0.15 240);
+  --primary: oklch(39.53% 0.15 259.87); /* Modern blue-purple */
+  --primary-dark: oklch(29.53% 0.15 259.87);
   --secondary: oklch(75% 0.1 270); /* Soft purple */
   --bg: oklch(98% 0.01 250); /* Very light gray */
   --text: oklch(20% 0.02 250); /* Darker gray */

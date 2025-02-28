@@ -1,14 +1,14 @@
 const { ipcRenderer } = require("electron");
 const quotes = require("./quotes");
 
-const timerLabel = document.getElementById("timerLabel");
+const timerLabel = document.getElementById('timerLabel');
 const workDurationInput = document.getElementById("workDuration");
 const inactivityThresholdInput = document.getElementById("inactivityThreshold");
 const resetThresholdInput = document.getElementById("resetThreshold");
 const timerLabelColor = "oklch(95% 0.07 92.39)";
-const workTimerLabelText = "Work time - Let's do this!";
-const breakTimerLabelText = "Break Time - You have earned it!";
-const workTimerColor = "oklch(39.53% 0.15 259.87)";
+const workTimerLabelText = "-- Work time - Let's do this! --";
+const breakTimerLabelText = "-- Break Time - You have earned it! --";
+const workTtimerColor = "oklch(39.53% 0.15 259.87)";
 const breaktimeTimerColor = "oklch(52.77% 0.138 145.41)";
 
 function updateTimerLabel(text, color) {
@@ -49,7 +49,7 @@ function formatTime(ms) {
 // Periodic update to show countdown
 function updateTimerDisplay(remainingTime) {
   timerDisplay.textContent = formatTime(remainingTime);
-  timerDisplay.style.color = workTimerColor; 
+  timerDisplay.style.color = timerColor; 
   updateTimerLabel(workTimerLabelText, timerLabelColor); // Revert the timer label
 }
 
