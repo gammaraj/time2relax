@@ -1,9 +1,15 @@
 const { ipcRenderer } = require("electron");
 const quotes = require("./quotes");
 
+const timerLabel = document.getElementById('timerLabel');
 const workDurationInput = document.getElementById("workDuration");
 const inactivityThresholdInput = document.getElementById("inactivityThreshold");
 const resetThresholdInput = document.getElementById("resetThreshold");
+
+function updateTimerLabel(text, color) {
+  timerLabel.textContent = text;
+  timerLabel.style.color = color;
+}
 
 ipcRenderer.on("initial-work-duration", (event, workDuration) => {
   updateTimerDisplay(workDuration);
@@ -38,9 +44,15 @@ function formatTime(ms) {
 // Periodic update to show countdown
 function updateTimerDisplay(remainingTime) {
   timerDisplay.textContent = formatTime(remainingTime);
+  timerDisplay.style.color = 'blue'; // Set the color to black for work timer
+  updateTimerLabel('Work time - Let\'s do this!', timerDisplay.style.color); // Revert the timer label
 }
 
 let timerInterval;
+
+ipcRenderer.on('break-timer-update', (event, { remainingBreakTime }) => {
+  updateBreakTimerDisplay(remainingBreakTime);
+});
 
 // Listen for timer updates from the main process
 ipcRenderer.on("timer-update", (event, { remainingTime }) => {
@@ -111,4 +123,15 @@ function saveSettings() {
   });
 
   alert("Settings saved!");
+}
+
+function updateBreakTimerDisplay(remainingBreakTime) {
+  const minutes = Math.floor(remainingBreakTime / 60000);
+  const seconds = Math.floor((remainingBreakTime % 60000) / 1000);
+  const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const timerDisplay = document.getElementById('timer');
+  timerDisplay.textContent = formattedTime;
+  timerDisplay.style.color = 'green'; // Set the color to green
+  updateTimerLabel('Break Time - You have earned it!', 'green'); // Update the timer label
+
 }

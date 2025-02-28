@@ -17,7 +17,7 @@ let tray = null;
 let timerCompletedOnce = false; // Flag to track if the timer has completed at least once
 
 const settingsPath = join(app.getPath("userData"), "settings.json");
-console.log(settingsPath);
+//console.log(settingsPath);
 
 // Default settings (in milliseconds)
 const defaultSettings = {
@@ -98,12 +98,12 @@ function startActivityMonitoring() {
       handleInactivity(currentTime, idleTime);
     } else {
       if (!timerCompletedOnce) {
-        console.log("handle activity - first time");
+        //console.log("handle activity - first time");
         handleActivity(currentTime);
       } else {
-        console.log("handle activity - second time or later ");
-        console.log("Waiting for reset threshold");
-        console.log(settings.resetThreshold);
+        //console.log("handle activity - second time or later ");
+        console.log("Waiting for reset threshold - " + settings.resetThreshold/60000 + " minutes");
+        //console.log(settings.resetThreshold);
         setTimeout(() => {
           handleActivity(currentTime);
         }, settings.resetThreshold);
@@ -146,8 +146,8 @@ function startActivityMonitoring() {
 
 function handleActivity(currentTime) {
   //console.log("User is active");
-  console.log("handling activity - current time");
-  console.log(currentTime);
+  //console.log("handling activity - current time");
+  //console.log(currentTime);
   
   if (!isTimerRunning && !timerPausedTime && !timerStartTime) {
   //if (!isTimerRunning && timerPausedTime !== null && timerStartTime !== null) {
@@ -227,12 +227,24 @@ function resumeTimer() {
 }
 
 function resetTimer() {
-  console.log("Resetting timer due to inactivity or manual reset");
+  console.log("Resetting timer ...");
   isTimerRunning = false;
   timerStartTime = null;
   timerPausedTime = null;
   clearTimeout(breakTimer);
 
+  // Send remaining break time to renderer process
+  const breakEndTime = Date.now() + settings.resetThreshold;
+  const breakInterval = setInterval(() => {
+    const remainingBreakTime = breakEndTime - Date.now();
+    if (remainingBreakTime <= 0) {
+      clearInterval(breakInterval);
+      startTimer();
+    } else {
+      mainWindow.webContents.send('break-timer-update', { remainingBreakTime });
+    }
+  }, 1000);
+  
   mainWindow.webContents.send("timer-update", {
     status: "reset",
     remainingTime: settings.workDuration,
