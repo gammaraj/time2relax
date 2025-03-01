@@ -115,20 +115,54 @@ ipcRenderer.on("break-time", () => {
   });
 });
 
+// Save settings to main process
 function saveSettings() {
   const workDuration = parseInt(workDurationInput.value) * 60 * 1000;
-  const inactivityThreshold =
-    parseInt(inactivityThresholdInput.value) * 60 * 1000;
+  const inactivityThreshold = parseInt(inactivityThresholdInput.value) * 60 * 1000;
   const resetThreshold = parseInt(resetThresholdInput.value) * 60 * 1000;
-
-  ipcRenderer.send("save-settings", {
+  
+  const newSettings = {
     workDuration,
     inactivityThreshold,
     resetThreshold,
-  });
-
-  alert("Settings saved!");
+    checkInterval: 1000 // Keep default check interval
+  };
+  
+  ipcRenderer.send('save-settings', newSettings);
 }
+
+
+// Handle settings saved confirmation
+ipcRenderer.on('settings-saved', (event, success) => {
+  const settingsStatus = document.getElementById('settingsStatus');
+
+  if (success) {
+    // Collapse settings pane using your existing classes
+    settingsContent.classList.remove('expanded');
+    chevron.classList.remove('rotated');
+    
+    console.log('Settings saved successfully!');
+    // Show success status
+    settingsStatus.textContent = 'Settings saved successfully!';
+    settingsStatus.className = 'mt-2 text-center text-green-500 font-bold';
+  } else {
+    console.log('Error saving settings!');
+    settingsStatus.textContent = 'Error saving settings!';
+    settingsStatus.className = 'mt-2 text-center text-red-500 font-bold';
+  }
+
+
+  // Show the element
+  settingsStatus.classList.remove('hidden');
+  
+  // Hide after 3 seconds
+  setTimeout(() => {
+    settingsStatus.classList.add('hidden');
+  }, 3000);
+});
+
+
+
 
 function updateBreakTimerDisplay(remainingBreakTime) {
   const minutes = Math.floor(remainingBreakTime / 60000);
@@ -140,3 +174,6 @@ function updateBreakTimerDisplay(remainingBreakTime) {
   updateTimerLabel(breakTimerLabelText, timerLabelColor); // Update the timer label
 
 }
+
+// Make saveSettings available globally so the onclick attribute works
+window.saveSettings = saveSettings;
