@@ -4,12 +4,14 @@ const path = require("path");
 
 module.exports = {
   packagerConfig: {
-    icon:
+    icon: path.resolve(
+      __dirname,
       process.platform === "win32"
-        ? "./assets/icons/win/icon.ico"
+        ? "./assets/icons/win/icon"
         : process.platform === "darwin"
-        ? "./assets/icons/mac/icon.icns"
-        : "./assets/icons/png/icon.png",
+        ? "./assets/icons/mac/icon"
+        : "./assets/icons/png/icon"
+    ),
     asar: true,
     extraResource: ["./assets/"],
   },
@@ -17,19 +19,15 @@ module.exports = {
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
-      config: {},
+      config: {
+        name: "your_app_name",
+        iconUrl: path.resolve(__dirname, "./assets/icons/win/icon.ico"),
+        setupIcon: path.resolve(__dirname, "./assets/icons/win/icon.ico"),
+      },
     },
     {
       name: "@electron-forge/maker-zip",
       platforms: ["darwin"],
-    },
-    // Add this DMG maker
-    {
-      name: "@electron-forge/maker-dmg",
-      config: {
-        icon: "./assets/icons/mac/icon.icns",
-        format: "ULFO",
-      },
     },
     {
       name: "@electron-forge/maker-deb",
@@ -39,22 +37,17 @@ module.exports = {
       name: "@electron-forge/maker-rpm",
       config: {},
     },
+    {
+      name: "@electron-forge/maker-dmg",
+      config: {
+        icon: path.resolve(__dirname, "./assets/icons/mac/icon.icns"),
+      },
+    },
   ],
   plugins: [
-    {
-      name: "@electron-forge/plugin-auto-unpack-natives",
-      config: {},
-    },
-    // Fuses are used to enable/disable various Electron functionality
-    // at package time, before code signing the application
     new FusesPlugin({
       version: FuseVersion.V1,
-      [FuseV1Options.RunAsNode]: false,
-      [FuseV1Options.EnableCookieEncryption]: true,
-      [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
-      [FuseV1Options.EnableNodeCliInspectArguments]: false,
-      [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-      [FuseV1Options.OnlyLoadAppFromAsar]: true,
+      options: FuseV1Options,
     }),
   ],
 };
