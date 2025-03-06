@@ -13,6 +13,7 @@ let lastActivityTime = Date.now();
 let timerStartTime = null;
 let timerPausedTime = null;
 let isTimerRunning = false;
+let isManuallyPaused = false; // Add this at the top with your other state variables
 let tray = null;
 let timerCompletedOnce = false;
 let remainingTime = null;
@@ -44,13 +45,30 @@ ipcMain.on("request-settings", (event) => {
   event.reply("settings-loaded", settings);
 });
 
+ipcMain.on('start-timer', () => {
+  startTimer();
+});
+
+ipcMain.on("pause-timer", () => {
+  pauseTimer(true); // Mark as manual pause
+});
+
+ipcMain.on("reset-timer", (event, startBreak = false) => {
+  resetTimer(startBreak);
+});
+
+ipcMain.on('resume-timer', () => {
+  isManuallyPaused = false; // Clear the manual pause flag
+  resumeTimer();
+});
+
 // Add this to your main.js file, replacing the existing save-settings handler
 ipcMain.on("save-settings", (event, newSettings) => {
   try {
     writeFileSync(settingsPath, JSON.stringify(newSettings));
     settings = newSettings; // Update settings in memory
     console.log("Settings saved successfully!");
-    
+
     // Send a message back to renderer to collapse the settings pane
     event.reply("settings-saved", true);
   } catch (error) {
@@ -76,6 +94,7 @@ function createWindow() {
   // Send initial workDuration to renderer
   mainWindow.webContents.on("did-finish-load", () => {
     mainWindow.webContents.send("initial-work-duration", settings.workDuration);
+    updateTimerState(); // Send initial button state
   });
 }
 
@@ -92,7 +111,7 @@ function startActivityMonitoring() {
     handleActivity(currentTime);
   });
 
-  // Use setInterval for activity checks
+  // In your startActivityMonitoring function, update the interval logic:
   activityTimer = setInterval(() => {
     const idleTime = powerMonitor.getSystemIdleTime(); // in seconds
     const currentTime = Date.now();
@@ -100,22 +119,23 @@ function startActivityMonitoring() {
     console.log(
       `Idle Time: ${idleTime} seconds, Inactivity Threshold: ${
         settings.inactivityThreshold / 1000
-      } seconds, Break Mode: ${isInBreakMode}`
+      } seconds, Break Mode: ${isInBreakMode}, Manually Paused: ${isManuallyPaused}`
     );
 
     // First check if user is idle
     if (idleTime > settings.inactivityThreshold / 1000) {
       console.log("User is inactive");
       if (isTimerRunning) {
-        pauseTimer();
+        pauseTimer(false); // Not a manual pause
       }
     } else {
       // User is active
       if (isInBreakMode) {
         // If in break mode, do nothing - wait for break to complete
         console.log("In break mode - waiting for break to complete");
-      } else if (!isTimerRunning) {
-        // Not in break mode and timer not running
+      } else if (!isTimerRunning && !isManuallyPaused) {
+        // Only auto-resume if not manually paused
+        // Not in break mode and timer not running and not manually paused
         if (timerPausedTime) {
           // Timer was paused, check if we should resume or reset
           const pauseDuration = currentTime - timerPausedTime;
@@ -135,7 +155,6 @@ function startActivityMonitoring() {
       // If timer is running, just update last activity time
       lastActivityTime = currentTime;
     }
-
     // Send remaining time to renderer process
     if (isTimerRunning && mainWindow) {
       remainingTime = settings.workDuration - (Date.now() - timerStartTime);
@@ -144,7 +163,7 @@ function startActivityMonitoring() {
       updateTrayTooltip(remainingTime);
       updateTrayTitle(remainingTime);
     }
-  }, 1000); // Check every second
+  }, 1000);
 
   // Create tray icon
   const trayIconPath = !app.isPackaged
@@ -162,11 +181,16 @@ function startActivityMonitoring() {
 }
 
 function handleActivity(currentTime) {
-  console.log("Handle activity called, isInBreakMode:", isInBreakMode);
-  
-  // Don't process activity events if in break mode
-  if (isInBreakMode) {
-    console.log("In break mode - ignoring activity event");
+  console.log(
+    "Handle activity called, isInBreakMode:",
+    isInBreakMode,
+    "isManuallyPaused:",
+    isManuallyPaused
+  );
+
+  // Don't process activity events if in break mode or manually paused
+  if (isInBreakMode || isManuallyPaused) {
+    console.log("In break mode or manually paused - ignoring activity event");
     return;
   }
 
@@ -187,7 +211,7 @@ function handleActivity(currentTime) {
       startTimer();
     }
   }
-  
+
   lastActivityTime = currentTime;
 }
 
@@ -207,14 +231,16 @@ function startTimer() {
     status: "started",
     remainingTime: settings.workDuration,
   });
-}
 
-function pauseTimer() {
-  console.log("Timer paused");
-  
+  updateTimerState();
+}
+function pauseTimer(isManual = false) {
+  console.log("Timer paused, manual pause:", isManual);
+
   if (isTimerRunning) {
     isTimerRunning = false;
     timerPausedTime = Date.now();
+    isManuallyPaused = isManual; // Set the flag
     clearTimeout(breakTimer);
 
     const elapsedTime = timerPausedTime - timerStartTime;
@@ -225,16 +251,19 @@ function pauseTimer() {
       remainingTime,
     });
   }
+
+  updateTimerState();
 }
 
 function resumeTimer() {
   console.log("Timer resumed");
-  
+
   if (timerPausedTime && !isTimerRunning) {
     const pauseDuration = Date.now() - timerPausedTime;
     timerStartTime += pauseDuration;
     timerPausedTime = null;
     isTimerRunning = true;
+    isManuallyPaused = false; // Clear the manual pause flag
 
     const remainingTime = settings.workDuration - (Date.now() - timerStartTime);
     if (remainingTime <= 0) {
@@ -251,41 +280,53 @@ function resumeTimer() {
       });
     }
   }
+
+  updateTimerState();
 }
 
-function resetTimer() {
-  console.log("Resetting timer and starting break period...");
+function resetTimer(startBreak = true) {
+  console.log("Resetting timer...");
   isTimerRunning = false;
   timerStartTime = null;
   timerPausedTime = null;
   clearTimeout(breakTimer);
-  isInBreakMode = true; // Enter break mode
-  timerCompletedOnce = true;
 
   mainWindow.webContents.send("timer-update", {
     status: "reset",
     remainingTime: settings.workDuration,
   });
 
-  // Start break timer with regular updates to the UI
-  const breakEndTime = Date.now() + settings.resetThreshold;
-  const breakInterval = setInterval(() => {
-    const remainingBreakTime = breakEndTime - Date.now();
-    
-    if (remainingBreakTime <= 0) {
-      clearInterval(breakInterval);
-      isInBreakMode = false; // Exit break mode
-      startTimer(); // Start a new work timer
-    } else {
-      mainWindow.webContents.send("break-timer-update", { remainingBreakTime });
-    }
-  }, 1000);
+  if (startBreak) {
+    isInBreakMode = true; // Enter break mode
+    timerCompletedOnce = true;
+
+    // Start break timer with regular updates to the UI
+    const breakEndTime = Date.now() + settings.resetThreshold;
+    const breakInterval = setInterval(() => {
+      const remainingBreakTime = breakEndTime - Date.now();
+
+      if (remainingBreakTime <= 0) {
+        clearInterval(breakInterval);
+        isInBreakMode = false; // Exit break mode
+        startTimer(); // Start a new work timer
+      } else {
+        mainWindow.webContents.send("break-timer-update", {
+          remainingBreakTime,
+        });
+      }
+    }, 1000);
+  } else {
+    isInBreakMode = false;
+  }
+
+  updateTimerState();
 }
 
 function notifyBreakTime() {
   console.log("Break time triggered");
   mainWindow.webContents.send("break-time");
   resetTimer(); // This will start the break
+  updateTrayTooltip(0); // Reset the tooltip
 }
 
 function updateDockBadge(remainingTime) {
@@ -293,7 +334,7 @@ function updateDockBadge(remainingTime) {
   const minutes = Math.floor(remainingTime / 60000);
   const seconds = Math.floor((remainingTime % 60000) / 1000);
   const badgeText = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  
+
   if (process.platform === "darwin") {
     app.dock.setBadge(badgeText); // macOS
   } else if (process.platform === "win32" && mainWindow) {
@@ -303,17 +344,19 @@ function updateDockBadge(remainingTime) {
 
 function updateTrayTooltip(remainingTime) {
   if (!tray) return;
-  
+
   if (remainingTime < 0) remainingTime = 0;
   const minutes = Math.floor(remainingTime / 60000);
   const seconds = Math.floor((remainingTime % 60000) / 1000);
-  const tooltipText = `Remaining Time: ${minutes}:${seconds.toString().padStart(2, "0")}`;
+  const tooltipText = `Remaining Time: ${minutes}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
   tray.setToolTip(tooltipText);
 }
 
 function updateTrayTitle(remainingTime) {
   if (!tray) return;
-  
+
   if (remainingTime < 0) remainingTime = 0;
   const minutes = Math.floor(remainingTime / 60000);
   const seconds = Math.floor((remainingTime % 60000) / 1000);
@@ -339,3 +382,14 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
+
+function updateTimerState() {
+  if (mainWindow) {
+    mainWindow.webContents.send("timer-state-update", {
+      isTimerRunning: isTimerRunning,
+      isInBreakMode: isInBreakMode,
+      isPaused: !isTimerRunning && timerPausedTime !== null
+    });
+  }
+}

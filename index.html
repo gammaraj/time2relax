@@ -1,64 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Break Reminder</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Break Reminder</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container mx-auto max-w-md p-4">
-    <div class="card">
-      <div class="card-header text-center">
-        <h1 class="text-3xl font-bold text-gray-200">Break Reminder</h1>
-        <div id="timerLabel" class="text-xl font-bold mb-2">-- Work time - Let's do this! --</div>
-        <div class="timer-display">
-          <div id="timer" class="text-6xl font-bold">00:00</div>
-        </div>
-        <div id="status" class="font-bold text-green-900 mt-2">Waiting for activity...</div>
-      </div>
-      <div class="card-body">
-        <div class="settings-toggle" id="settingsToggle">
-          <h3 class="text-xl font-semibold text-gray-800">Settings</h3>
-          <svg class="w-5 h-5 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-          </svg>
-        </div>
-        <div id="settingsStatus" class="mt-2 text-center hidden"></div>
-        <div class="settings-content" id="settingsContent">
-          <div class="settings-grid">
-            <div class="setting">
-              <label for="workDuration" class="block text-sm font-medium text-gray-700">Work Duration (minutes)</label>
-              <input type="number" id="workDuration" min="1" class="input">
+    <div class="container mx-auto max-w-md p-4">
+        <div class="card">
+            <div class="card-header text-center">
+                <h1 class="text-3xl font-bold text-gray-200">Break Reminder</h1>
+                <div id="timerLabel" class="text-xl font-bold mb-2">-- Work time - Let's do this! --</div>
+                <div class="timer-display">
+                    <div id="timer" class="text-6xl font-bold">00:00</div>
+                </div>
+                <button id="pauseButton" class="secondary-button">Pause</button>
+                <button id="resetButton" class="button">Reset</button>
+                <div id="status" class="font-bold text-green-900 mt-2">Waiting for activity...</div>
             </div>
-            <div class="setting">
-              <label for="inactivityThreshold" class="block text-sm font-medium text-gray-700">Inactivity Threshold (minutes)</label>
-              <input type="number" id="inactivityThreshold" min="1" class="input">
+            <div class="card-body">
+                <div class="settings-toggle" id="settingsToggle">
+                    <h3 class="text-xl font-semibold text-gray-800">Settings</h3>
+                    <svg class="w-5 h-5 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div id="settingsStatus" class="mt-2 text-center hidden"></div>
+                <div class="settings-content" id="settingsContent">
+                    <div class="settings-grid">
+                        <div class="setting">
+                            <label for="workDuration" class="block text-sm font-medium text-gray-700">Work Duration (minutes)</label>
+                            <input type="number" id="workDuration" min="1" class="input">
+                        </div>
+                        <div class="setting">
+                            <label for="inactivityThreshold" class="block text-sm font-medium text-gray-700">Inactivity Threshold (minutes)</label>
+                            <input type="number" id="inactivityThreshold" min="1" class="input">
+                        </div>
+                        <div class="setting col-span-full">
+                            <label for="resetThreshold" class="block text-sm font-medium text-gray-700">Reset Threshold (minutes)</label>
+                            <input type="number" id="resetThreshold" min="1" class="input">
+                        </div>
+                    </div>
+                    <button onclick="saveSettings()" class="btn">Save Settings</button>
+                </div>
             </div>
-            <div class="setting col-span-full">
-              <label for="resetThreshold" class="block text-sm font-medium text-gray-700">Reset Threshold (minutes)</label>
-              <input type="number" id="resetThreshold" min="1" class="input">
-            </div>
-          </div>
-          <button onclick="saveSettings()" class="btn">Save Settings</button>
-          
         </div>
-      </div>
     </div>
-  </div>
-  
-  <script>
-    // Toggle settings
-    const settingsToggle = document.getElementById('settingsToggle');
-    const settingsContent = document.getElementById('settingsContent');
-    const chevron = document.querySelector('.chevron');
     
-    settingsToggle.addEventListener('click', () => {
-      settingsContent.classList.toggle('expanded');
-      chevron.classList.toggle('rotated');
-    });
-  </script>
-  <script src="renderer.js"></script>
+    <script>
+        // Toggle settings
+        const settingsToggle = document.getElementById('settingsToggle');
+        const settingsContent = document.getElementById('settingsContent');
+        const chevron = document.querySelector('.chevron');
+
+        settingsToggle.addEventListener('click', () => {
+            settingsContent.classList.toggle('expanded');
+            chevron.classList.toggle('rotated');
+        });
+    </script>
+    <script src="renderer.js"></script>
 </body>
 </html>

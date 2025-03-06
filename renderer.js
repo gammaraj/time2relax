@@ -5,11 +5,15 @@ const timerLabel = document.getElementById("timerLabel");
 const workDurationInput = document.getElementById("workDuration");
 const inactivityThresholdInput = document.getElementById("inactivityThreshold");
 const resetThresholdInput = document.getElementById("resetThreshold");
-const timerLabelColor = "oklch(95% 0.07 92.39)";
+const pauseResumeBtn = document.getElementById('pauseButton');
+const resetButton = document.getElementById('resetButton');
+
+//const timerLabelColor = "oklch(95% 0.07 92.39)";
+const timerLabelColor = getComputedStyle(document.documentElement).getPropertyValue('--timer-label-color');
 const workTimerLabelText = "Work time - Let's do this!";
 const breakTimerLabelText = "Break Time - You have earned it!";
-const workTimerColor = "oklch(39.53% 0.15 259.87)";
-const breaktimeTimerColor = "oklch(52.77% 0.138 145.41)";
+const workTimerColor = getComputedStyle(document.documentElement).getPropertyValue('--work-timer-color');
+const breaktimeTimerColor = getComputedStyle(document.documentElement).getPropertyValue('--break-timer-color');
 
 function updateTimerLabel(text, color) {
   timerLabel.textContent = text;
@@ -19,6 +23,37 @@ function updateTimerLabel(text, color) {
 ipcRenderer.on("initial-work-duration", (event, workDuration) => {
   updateTimerDisplay(workDuration);
 });
+
+ipcRenderer.on('timer-state-update', (event, data) => {
+  if (data.isInBreakMode) {
+    pauseResumeBtn.disabled = true;
+    pauseResumeBtn.textContent = 'Break';
+  } else if (data.isPaused) {
+    pauseResumeBtn.disabled = false;
+    pauseResumeBtn.textContent = 'Resume';
+  } else if (data.isTimerRunning) {
+    pauseResumeBtn.disabled = false;
+    pauseResumeBtn.textContent = 'Pause';
+  } else {
+    pauseResumeBtn.disabled = false;
+    pauseResumeBtn.textContent = 'Start';
+  }
+});
+
+pauseResumeBtn.addEventListener('click', () => {
+  if (pauseResumeBtn.textContent === 'Pause') {
+    ipcRenderer.send('pause-timer');
+  } else if (pauseResumeBtn.textContent === 'Resume') {
+    ipcRenderer.send('resume-timer');
+  } else if (pauseResumeBtn.textContent === 'Start') {
+    ipcRenderer.send('start-timer');
+  }
+});
+
+resetButton.addEventListener('click', () => {
+  ipcRenderer.send('reset-timer');
+});
+
 
 ipcRenderer.on("settings-loaded", (event, loadedSettings) => {
   if (loadedSettings) {

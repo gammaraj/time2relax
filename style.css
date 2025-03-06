@@ -1,20 +1,44 @@
+/* style.css */
+
 :root {
+  /* Color Palette */
   --primary: oklch(39.53% 0.15 259.87); /* Modern blue-purple */
   --primary-dark: oklch(29.53% 0.15 259.87);
   --secondary: oklch(75% 0.1 270); /* Soft purple */
+  --secondary-dark: oklch(40% 0.06 280); /* Darker, Desaturated Purple */
   --bg: oklch(98% 0.01 250); /* Very light gray */
   --text: oklch(20% 0.02 250); /* Darker gray */
   --card: #ffffff;
   --accent: oklch(60% 0.12 300); /* Purple accent */
-  --shadow-color: rgba(0, 0, 0, 0.1); /* Shadow color */
+
+  /* Spacing and Sizing */
   --border-radius: 1rem; /* Consistent border radius */
+  --padding-base: 1.5rem;
+  --padding-button: 0.75rem 1.5rem;
+  --margin-base: 0.5rem;
+
+  /* Transitions and Shadows */
   --transition-duration: 0.3s; /* Consistent transition duration */
-  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* Shadow color */
+  --box-shadow-base: 0 2px 4px var(--shadow-color);
+  --box-shadow-card: 0 10px 25px -5px var(--shadow-color), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --box-shadow-input-focus: 0 0 0 3px oklch(90.94% 0.046 258.06);
+
+  /* Typography */
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-header: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-size-base: 1rem;
+  --font-weight-bold: 600;
+
+  /* Timer Specific */
+  --timer-label-color: oklch(95% 0.07 92.39);
+  --work-timer-color: oklch(39.53% 0.15 259.87);
+  --break-timer-color: oklch(52.77% 0.138 145.41);
 }
 
 body {
   background: var(--bg);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-family-base);
   height: 75vh;
   display: flex;
   align-items: center;
@@ -25,7 +49,7 @@ body {
 .card {
   background: var(--card);
   border-radius: 1.5rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--box-shadow-card);
   overflow: hidden;
   transition: all 0.2s ease;
 }
@@ -37,45 +61,101 @@ body {
   position: relative;
 }
 
+.button, .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem; /* Reduced padding */
+  font-size: 0.9rem; /* Slightly smaller font */
+  font-weight: 600;
+  text-align: center;
+  border: none;
+  border-radius: 0.3rem; /* Slightly smaller border radius */
+  background: var(--primary);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color var(--transition-duration) ease, transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); /* Reduced shadow */
+  margin: 0.3rem; /* Reduced margin */
+}
+
+.secondary-button {
+    background: var(--secondary-dark);
+}
+
+.button:hover, .secondary-button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.button:active, .secondary-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px var(--shadow-color);
+}
+
+.button:focus, .secondary-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+.button--secondary {
+  background-color: #95a5a6;
+}
+
+.button--secondary:hover {
+  background-color: #7f8c8d;
+}
+
+.button--small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.button--large {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
 .timer-display {
   background: rgba(255, 255, 255, 0.25);
-  padding: 1.5rem;
-  border-radius: 1rem;
+  padding: var(--padding-base);
+  border-radius: var(--border-radius);
   backdrop-filter: blur(5px);
-  margin: 1.5rem 0 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin: var(--padding-base) 0 1rem;
+  box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .card-body {
-  padding: 1.5rem;
+  padding: var(--padding-base);
 }
 
 .input {
   width: 100%;
-  padding: 0.75rem;
+  padding: var(--padding-button);
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  margin-top: 0.5rem;
+  margin-top: var(--margin-base);
   transition: border-color 0.2s;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px oklch(90.94% 0.046 258.06);
+  box-shadow: var(--box-shadow-input-focus);
 }
 
 .btn {
   background: var(--primary);
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: var(--padding-button);
   border-radius: 0.5rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: all 0.2s;
   width: 100%;
-  margin-top: 1.5rem;
+  margin-top: var(--padding-base);
 }
 
 .btn:hover {
@@ -85,8 +165,8 @@ body {
 
 .settings-grid {
   display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: var(--margin-base);
+  margin-top: var(--margin-base);
 }
 
 .settings-toggle {
@@ -94,7 +174,7 @@ body {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding: 0.75rem;
+  padding: var(--padding-button);
   background: oklch(97.94% 0.016 258.06);
   border-radius: 0.5rem;
   transition: background 0.2s;
