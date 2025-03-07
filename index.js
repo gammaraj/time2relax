@@ -45,7 +45,7 @@ ipcMain.on("request-settings", (event) => {
   event.reply("settings-loaded", settings);
 });
 
-ipcMain.on('start-timer', () => {
+ipcMain.on("start-timer", () => {
   startTimer();
 });
 
@@ -57,7 +57,7 @@ ipcMain.on("reset-timer", (event, startBreak = false) => {
   resetTimer(startBreak);
 });
 
-ipcMain.on('resume-timer', () => {
+ipcMain.on("resume-timer", () => {
   isManuallyPaused = false; // Clear the manual pause flag
   resumeTimer();
 });
@@ -65,14 +65,32 @@ ipcMain.on('resume-timer', () => {
 // Add this to your main.js file, replacing the existing save-settings handler
 ipcMain.on("save-settings", (event, newSettings) => {
   try {
+    // Stop any running timers and clear timeouts
+    isTimerRunning = false;
+    timerStartTime = null;
+    timerPausedTime = null;
+    clearTimeout(breakTimer);
+    clearInterval(activityTimer);
+
+    // Update settings in memory
     writeFileSync(settingsPath, JSON.stringify(newSettings));
     settings = newSettings; // Update settings in memory
     console.log("Settings saved successfully!");
 
+    // Reset all time-related variables
+    startActivityMonitoring();
+
     // Send a message back to renderer to collapse the settings pane
+    console.log(
+      "Sending message to renderer to collapse the settings pane and update UI..."
+    );
     event.reply("settings-saved", true);
+    mainWindow.webContents.send("initial-work-duration", settings.workDuration);
+    updateTimerState(); // Send initial button state
   } catch (error) {
-    console.error("Error saving settings:", error);
+    //console.error("Error saving settings:", error);
+    console.error(error);
+
     // Notify renderer about the error
     event.reply("settings-saved", false);
   }
@@ -172,7 +190,9 @@ function startActivityMonitoring() {
 
   fs.access(trayIconPath, fs.constants.F_OK, (err) => {
     if (!err) {
-      tray = new Tray(trayIconPath);
+      if (!tray) {
+        tray = new Tray(trayIconPath);
+      }
       tray.setToolTip("Timer App");
     } else {
       console.log("Tray icon not found:", err);
@@ -325,6 +345,9 @@ function resetTimer(startBreak = true) {
 function notifyBreakTime() {
   console.log("Break time triggered");
   mainWindow.webContents.send("break-time");
+  if (tray) {
+    tray.setTitle("Break Time!"); // Update tray tooltip to "Break Time!"
+  }
   resetTimer(); // This will start the break
   updateTrayTooltip(0); // Reset the tooltip
 }
@@ -348,9 +371,15 @@ function updateTrayTooltip(remainingTime) {
   if (remainingTime < 0) remainingTime = 0;
   const minutes = Math.floor(remainingTime / 60000);
   const seconds = Math.floor((remainingTime % 60000) / 1000);
-  const tooltipText = `Remaining Time: ${minutes}:${seconds
+  let tooltipText = `Remaining Time: ${minutes}:${seconds
     .toString()
     .padStart(2, "0")}`;
+
+  /*  if (remainingTime === 0) {
+    tooltipText = "Break Time!";
+  }
+*/
+
   tray.setToolTip(tooltipText);
 }
 
@@ -383,13 +412,12 @@ app.on("activate", () => {
   }
 });
 
-
 function updateTimerState() {
   if (mainWindow) {
     mainWindow.webContents.send("timer-state-update", {
       isTimerRunning: isTimerRunning,
       isInBreakMode: isInBreakMode,
-      isPaused: !isTimerRunning && timerPausedTime !== null
+      isPaused: !isTimerRunning && timerPausedTime !== null,
     });
   }
 }
