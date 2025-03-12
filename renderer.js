@@ -8,8 +8,8 @@ const resetThresholdInput = document.getElementById("resetThreshold");
 const pauseResumeBtn = document.getElementById('pauseButton');
 const resetButton = document.getElementById('resetButton');
 
-//const timerLabelColor = "oklch(95% 0.07 92.39)";
-const timerLabelColor = getComputedStyle(document.documentElement).getPropertyValue('--timer-label-color');
+const workTimerLabelColor = getComputedStyle(document.documentElement).getPropertyValue('--work-timer-label-color');
+const breaktimeTimerLabelColor = getComputedStyle(document.documentElement).getPropertyValue('--break-timer-label-color');
 const workTimerLabelText = "Work time - Let's do this!";
 const breakTimerLabelText = "Break Time - You have earned it!";
 const workTimerColor = getComputedStyle(document.documentElement).getPropertyValue('--work-timer-color');
@@ -85,7 +85,7 @@ function formatTime(ms) {
 function updateTimerDisplay(remainingTime) {
   timerDisplay.textContent = formatTime(remainingTime);
   timerDisplay.style.color = workTimerColor; 
-  updateTimerLabel(workTimerLabelText, timerLabelColor); // Revert the timer label
+  updateTimerLabel(workTimerLabelText, workTimerLabelColor); // Revert the timer label
 }
 
 let timerInterval;
@@ -206,7 +206,7 @@ function updateBreakTimerDisplay(remainingBreakTime) {
   const timerDisplay = document.getElementById('timer');
   timerDisplay.textContent = formattedTime;
   timerDisplay.style.color = breaktimeTimerColor; 
-  updateTimerLabel(breakTimerLabelText, timerLabelColor); // Update the timer label
+  updateTimerLabel(breakTimerLabelText, breaktimeTimerLabelColor); // Update the timer label
 
 }
 
